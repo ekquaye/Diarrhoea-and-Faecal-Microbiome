@@ -1,0 +1,414 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red57\green192\blue38;}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c25704\c77963\c19556;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww13740\viewh13880\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # 
+\f1\fs22 \cf2 \CocoaLigature0 Combined 16S and ITS sequence import and demultiplexing script for QIIME2 2021.4 version\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\
+\
+\
+\
+Last login: Mon Jun 14 09:23:58 on ttys000\
+(base) welcome@Welcomes-MacBook-Pro ~ % conda activate qiime2-2021.4\
+xcode-select: note: no developer tools were found at '/Applications/Xcode.app', requesting install. Choose an option in the dialog to download the command line developer tools.\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % ls\
+Applications				Music\
+Desktop					Pictures\
+Documents				Public\
+Downloads				miniconda3\
+Library					qiime2-2021.4-py38-osx-conda.yml\
+Movies\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % cd Desktop/Seqs\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % ls\
+Undetermined_S0_L001_I1_001.fastq	metadata.tsv\
+Undetermined_S0_L001_R1_001.fastq	sample-metadata-thesis.tsv\
+Undetermined_S0_L001_R2_001.fastq	sample-metadata_ORIGINAL.xlsx\
+fungi\
+\
+\
+# creating .gz compressed files of sequences while maintaining the original files\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % gzip -c Undetermined_S0_L001_I1_001.fastq > barcodes.fastq.gz\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % gzip -c Undetermined_S0_L001_R1_001.fastq > forward.fastq.gz\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % gzip -c Undetermined_S0_L001_R2_001.fastq > reverse.fastq.gz\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % mkdir bacteria\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % mkdir emp-paired-end-sequences\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime tools import \\\
+> --type EMPPairedEndSequences \\\
+> --input-path emp-paired-end-sequences \\\
+> --output-path emp-paired-end-sequences.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Imported emp-paired-end-sequences as EMPPairedEndDirFmt to emp-paired-end-sequences.qza\cf2 \
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime demux emp-paired \\\
+> --m-barcodes-file metadata.tsv \\\
+> --m-barcodes-column Barcode_Sequence_16S \\\
+> --i-seqs emp-paired-end-sequences.qza \\\
+> --p-no-golay-error-correction \\\
+> --o-per-sample-sequences bacteria/demux-bac.qza \\\
+> --o-error-correction-details bacteria/demux-bac-details\
+\cf3 Saved SampleData[PairedEndSequencesWithQuality] to: bacteria/demux-bac.qza\cf2 \
+\cf3 Saved ErrorCorrectionDetails to: bacteria/demux-bac-details.qza\cf2 \
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime demux summarize \\\
+> --i-data bacteria/demux-bac.qza \\\
+> --o-visualization bacteria/demux-bac.qzv\
+\cf3 Saved Visualization to: bacteria/demux-bac.qzv\cf2 \
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime tools view bacteria/demux-bac.qzv\
+\
+\
+\
+# demultiplexing its sequences\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime demux emp-paired \\\
+--m-barcodes-file metadata.tsv \\\
+--m-barcodes-column Barcode_Sequence_ITS \\ \
+--i-seqs emp-paired-end-sequences.qza \\\
+--o-per-sample-sequences fungi/demux-fun.qza \\\
+--o-error-correction-details fungi/demux-fun-details.qza\
+\cf3 Saved SampleData[PairedEndSequencesWithQuality] to: fungi/demux-fun.qza\cf2 \
+\cf3 Saved ErrorCorrectionDetails to: fungi/demux-fun-details.qza\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime demux summarize \\\
+> --i-data fungi/demux-fun.qza \\\
+> --o-visualization fungi/demux-fun.qzv \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved Visualization to: fungi/demux-fun.qzv\cf2 \
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime tools view fungi/demux-fun.qzv\
+Press the 'q' key, Control-C, or Control-D to quit. This view may no longer be accessible or work correctly after quitting.\
+\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % cd Desktop/Seqs\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime tools view bacteria/demux-bac.qzv\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime dada2 denoise-paired \\\
+> --i-demultiplexed-seqs bacteria/demux-bac.qza \\\
+> --p-trunc-len-f 240 \\\
+> --p-trunc-len-r 200 \\\
+> --o-table bacteria/table-bac.qza \\\
+> --o-representative-sequences bacteria/rep-seqs-bac.qza \\\
+> --o-denoising-stats bacteria/denoising-stats-bac.qza\
+ \cf3 Saved FeatureTable[Frequency] to: bacteria/table-bac.qza\cf2 \
+\cf3 Saved FeatureData[Sequence] to: bacteria/rep-seqs-bac.qza\cf2 \
+\cf3 Saved SampleData[DADA2Stats] to: bacteria/denoising-stats-bac.qza\cf2 \
+\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime feature-table summarize \\\
+--i-table bacteria/table-bac.qza \\\
+--o-visualization bacteria/table-bac.qzv \\\
+--m-sample-metadata-file metadata.tsv\
+\cf3 Saved Visualization to: bacteria/table-bac.qzv\cf2 \
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime feature-table tabulate-seqs \\\
+--i-data bacteria/rep-seqs-bac.qza \\\
+--o-visualization bacteria/rep-seqs-bac.qzv\
+\
+\cf3 Saved Visualization to: bacteria/rep-seqs-bac.qzv\cf2 \
+\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime metadata tabulate \\\
+--m-input-file bacteria/denoising-stats-bac.qza \\\
+--o-visualization bacteria/denoising-stats-bac.qzv\
+\cf3 Saved Visualization to: bacteria/denoising-stats-bac.qzv\cf2 \
+\
+\
+\
+# downloading Greengages SEPP reference phylogenetic tree\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % conda install wget\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % wget \\\
+  -O "sepp-refs-gg-13-8.qza" \\\
+  "https://data.qiime2.org/2021.4/common/sepp-refs-gg-13-8.qza"\
+--2021-06-15 17:08:18--  https://data.qiime2.org/2021.4/common/sepp-refs-gg-13-8.qza\
+Resolving data.qiime2.org... 54.200.1.12\
+Connecting to data.qiime2.org|54.200.1.12|:443... connected.\
+HTTP request sent, awaiting response... 302 FOUND\
+Location: https://s3-us-west-2.amazonaws.com/qiime2-data/2021.4/common/sepp-refs-gg-13-8.qza [following]\
+--2021-06-15 17:08:20--  https://s3-us-west-2.amazonaws.com/qiime2-data/2021.4/common/sepp-refs-gg-13-8.qza\
+Resolving s3-us-west-2.amazonaws.com... 52.218.176.248\
+Connecting to s3-us-west-2.amazonaws.com|52.218.176.248|:443... connected.\
+HTTP request sent, awaiting response... 200 OK\
+Length: 50161069 (48M) [binary/octet-stream]\
+Saving to: 'sepp-refs-gg-13-8.qza'\
+\
+sepp-refs-gg-13-8.qza   100%[============================>]  47.84M   834KB/s    in 37s     \
+\
+2021-06-15 17:08:58 (1.30 MB/s) - 'sepp-refs-gg-13-8.qza' saved [50161069/50161069]\
+\
+\
+# building phylogenetic tree from the Greengages SEPP tree backbone\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime fragment-insertion sepp \\\
+> --i-representative-sequences bacteria/rep-seqs-bac.qza \\\
+> --i-reference-database sepp-refs-gg-13-8.qza \\\
+> --o-tree bacteria/insertion-tree-bac.qza \\\
+> --o-placements bacteria/insertion-tree-placements.qza \\\
+> --p-threads 3\
+\cf3 Saved Phylogeny[Rooted] to: bacteria/insertion-tree-bac.qza\cf2 \
+\cf3 Saved Placements to: bacteria/insertion-tree-placements.qza\cf2 \
+\
+\
+# filtering features that did not fit into reference tree\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime fragment-insertion filter-features \\\
+--i-table bacteria/table-bac.qza \\\
+--i-tree bacteria/insertion-tree-bac.qza \\ \
+--o-filtered-table filtered-table-bac.qza \\\
+--o-removed-table removed-table-bac.qza\
+\cf3 Saved FeatureTable[Frequency] to: filtered-table-bac.qza\cf2 \
+\cf3 Saved FeatureTable[Frequency] to: removed-table-bac.qza\cf2 \
+\
+\
+######################################################################################################\
+# disregard this note\
+#### I rebuilt the phylogenetic tree for a second time because I could not import the previous one into R as a phyloseq object\'85 Had to be sure this was not the problem. Issue had to do with the package version ####\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro bacteria % qiime fragment-insertion sepp \\\
+--i-representative-sequences rep-seqs-bac.qza \\\
+--i-reference-database sepp-refs-gg-13-8.qza \\\
+--o-tree insertion-tree-two.qza \\\
+--o-placements insertion-placements-two.qza \\\
+--p-threads 3\
+\
+\
+\cf3 Saved Phylogeny[Rooted] to: insertion-tree-two.qza\cf2 \
+\cf3 Saved Placements to: insertion-placements-two.qza\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro bacteria % qiime fragment-insertion filter-features \\\
+> --i-table table-bac.qza \\\
+> --i-tree insertion-tree-two.qza \\\
+> --o-filtered-table filtered-table-two.qza \\\
+> --o-removed-table removed-table-two\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved FeatureTable[Frequency] to: filtered-table-two.qza\cf2 \
+\cf3 Saved FeatureTable[Frequency] to: removed-table-two.qza\cf2 \
+\
+####################################################################################################\
+\
+\
+\
+# training feature classifier de novo, for classification of my sequences\'85Greengages 13.8 99 version\
+\
+Last login: Sun Jun 20 12:46:03 on console\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % cd Desktop/Seqs \
+            \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % mkdir training-feature-classifiers\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % cd training-feature-classifiers\
+   \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % ls\
+gg_13_8_otus		gg_13_8_otus.tar.gz\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % ls\
+99_otu_taxonomy.txt	gg_13_8_otus\
+99_otus.fasta		gg_13_8_otus.tar.gz\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % qiime tools import \\\
+> --type 'FeatureData[Sequence]' \\\
+> --input-path 99_otus.fasta \\\
+> --output-path 99_otus.qza \
+ \
+\cf3 Imported 99_otus.fasta as DNASequencesDirectoryFormat to 99_otus.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % qiime tools import \\\
+> --type 'FeatureData[Taxonomy]' \\\
+> --input-format HeaderlessTSVTaxonomyFormat \\\
+> --input-path 99_otu_taxonomy.txt \\\
+> --output-path ref-taxonomy.qza\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 \
+\
+Imported 99_otu_taxonomy.txt as HeaderlessTSVTaxonomyFormat to ref-taxonomy.qza\cf2 \
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % qiime feature-classifier extract-reads \\\
+> --i-sequences 99_otus.qza \\\
+> --p-f-primer GTGCCAGCMGCCGCGGTAA \\\
+> --p-r-primer GGACTACHVGGGTWTCTAAT \\\
+> --p-min-length 200 \\\
+> --p-max-length 400 \\\
+> --o-reads ref-seqs.qza\
+\
+\cf3 Saved FeatureData[Sequence] to: ref-seqs.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % qiime feature-classifier fit-classifier-naive-bayes \\\
+> --i-reference-reads ref-seqs.qza \\\
+> --i-reference-taxonomy ref-taxonomy.qza \\\
+> --o-classifier classifier.qza\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved TaxonomicClassifier to: classifier.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro training-feature-classifiers % cd ..\
+\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime feature-classifier classify-sklearn \\\
+> --i-reads bacteria/rep-seqs-bac.qza \\\
+> --i-classifier training-feature-classifiers/classifier.qza \\\
+> --o-classification bacteria/taxonomy-bac.qza\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved FeatureData[Taxonomy] to: bacteria/taxonomy-bac.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime metadata tabulate \\\
+> --m-input-file bacteria/taxonomy-bac.qza \\\
+> --m-input-file bacteria/rep-seqs-bac.qza \\\
+> --o-visualization bacteria/taxonomy-bac.qzv\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved Visualization to: bacteria/taxonomy-bac.qzv\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % qiime tools view bacteria/taxonomy-bac.qzv\
+Press the 'q' key, Control-C, or Control-D to quit. This view may no longer be accessible or work correctly after quitting.\
+\
+\
+\
+\
+\
+####################################################################################################\
+# Verifying observed misclassification in Greengages for Alloicoccus with Silva 138\
+\
+\
+Last login: Thu May 12 07:52:23 on console\
+(base) welcome@Welcomes-MacBook-Pro ~ % conda activate qiime2-2021.4\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % pwd\
+/Users/welcome\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % ls \
+Applications				Movies\
+CytoscapeConfiguration			Music\
+Desktop					Pictures\
+Documents				Public\
+Downloads				Zotero\
+Heritage.R				miniconda3\
+Library					qiime2-2021.4-py38-osx-conda.yml\
+MiCoNE\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro ~ % cd Desktop/Seqs\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % ls\
+16S:ITS import-demux script.rtf		fungi\
+Undetermined_S0_L001_I1_001.fastq	gg-13-8-99-515-806-nb-classifier.qza\
+Undetermined_S0_L001_R1_001.fastq	metadata.tsv\
+Undetermined_S0_L001_R2_001.fastq	removed-table-bac.qza\
+bacteria				sample-metadata-thesis.tsv\
+emp-paired-end-sequences		sample-metadata_ORIGINAL.xlsx\
+emp-paired-end-sequences.qza		sepp-refs-gg-13-8.qza\
+empress-tree-trial.qzv			silva-138-99-515-806-nb-classifier.qza\
+filtered-table-bac.qza			training-feature-classifiers\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % mkdir silva-alternate-tax-classification\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro Seqs % cd silva-alternate-tax-classification\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro silva-alternate-tax-classification % ls\
+rep-seqs-bac.qza			silva-138-99-515-806-nb-classifier.qza\
+\
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro silva-alternate-tax-classification % qiime feature-classifier classify-sklearn \\\
+--i-classifier silva-138-99-515-806-nb-classifier.qza \\\
+--i-reads rep-seqs-bac.qza \\\
+--o-classification taxonomy-bac-silva.qza\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf3 Saved FeatureData[Taxonomy] to: taxonomy-bac-silva.qza\cf2 \
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro silva-alternate-tax-classification % qiime metadata tabulate \\\
+> --m-input-file taxonomy-bac-silva.qza \\\
+> --m-input-file rep-seqs-bac.qza \\\
+> --o-visualization taxonomy-bac-silva.qzv\
+\cf3 Saved Visualization to: taxonomy-bac-silva.qzv\cf2 \
+\
+(qiime2-2021.4) welcome@Welcomes-MacBook-Pro silva-alternate-tax-classification % qiime tools view taxonomy-bac-silva.qzv \
+Press the 'q' key, Control-C, or Control-D to quit. This view may no longer be accessible or work correctly after quitting.\
+\
+\
+\
+\
+\
+\
+\
+\
+}
